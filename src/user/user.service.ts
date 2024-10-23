@@ -43,7 +43,11 @@ export class UserService {
       }
 
       async getUsers() {
-        return this.prisma.user.findMany({});
+        return this.prisma.user.findMany({
+            include: {
+            profile: true,
+        },
+        });
       }
 
       async updateUser(id: number, data: any) {
