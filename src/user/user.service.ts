@@ -35,7 +35,8 @@ export class UserService {
           where: { id },
           include: { profile: true },
         });
-    
+        console.log(user);
+        
         if (!user) {
           throw new NotFoundException(`user with id=${id} not found`);
         }
@@ -52,36 +53,44 @@ export class UserService {
 
       async updateUser(id: number, data: any) {
         const user = await this.prisma.user.findUnique({where:{id}});
-    
+        
+        console.log("before", data);
+        
+
         if (!user) {
           throw new NotFoundException(`user with id=${id} not found`);
         }
     
         const { username, phone, email, gender, address, pincode, city, state, country } = data;
-    
-        return this.prisma.user.update({
+        const updateduser = await this.prisma.user.update({
           where: { id },
           data: {
             username,
             phone,
             profile: {
               update: {
-                email,
-                gender,
-                address,
-                pincode,
-                city,
-                state,
-                country,
+                email: email,
+                gender: gender,
+                address: address,
+                pincode: pincode,
+                city: city,
+                state: state,
+                country: country,
               },
             },
-          }        
+          },
+          include: {
+            profile: true, 
+          },
         });
+        console.log(updateduser);
+        return updateduser
       }
 
 
 async deleteUser(id: number) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`user with id=${id} not found`);
@@ -94,5 +103,8 @@ async deleteUser(id: number) {
     return {
         message: `user with id=${id} successfully deleted`,
     };
+    } catch (error) {
+            return error;
+    }
 }
 }
